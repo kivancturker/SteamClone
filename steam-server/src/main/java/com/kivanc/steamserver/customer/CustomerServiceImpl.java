@@ -6,6 +6,7 @@ import com.kivanc.steamserver.customer.exceptions.CustomerDoesNotExistException;
 import com.kivanc.steamserver.customer.requests.CustomerRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -18,6 +19,7 @@ public class CustomerServiceImpl implements  CustomerService {
     private final CustomerDao customerDao;
     private final ModelMapper modelMapper;
 
+    @Autowired
     public CustomerServiceImpl(CustomerDao customerDao, ModelMapper modelMapper) {
         this.customerDao = customerDao;
         this.modelMapper = modelMapper;
