@@ -8,7 +8,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PublisherServiceImpl implements PublisherService{
@@ -31,6 +33,15 @@ public class PublisherServiceImpl implements PublisherService{
             throw new RecordAlreadyExistException("Publisher Already Exist");
         }
         publisherDao.save(publisher);
+    }
+
+    @Override
+    public List<PublisherDTO> getPublishers() {
+        List<Publisher> publishers = publisherDao.findAll();
+        List<PublisherDTO> publisherDTOS = publishers.stream()
+                .map(publisher -> mapper.map(publisher, PublisherDTO.class))
+                .collect(Collectors.toList());
+        return publisherDTOS;
     }
 
     @Override

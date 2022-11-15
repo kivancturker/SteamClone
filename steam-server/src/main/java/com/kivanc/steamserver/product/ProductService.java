@@ -6,8 +6,11 @@ import com.kivanc.steamserver.publisher.dtos.ProductDTO;
 import java.util.List;
 
 public interface ProductService {
-    ProductDTO getProduct(long id);
+    ProductDTO getProductById(long id);
 
-    List<ProductDTO> getProductsByUsername(String username);
+    List<ProductDTO> getProductsByPublisherId(Long id);
     void addProduct(AddProductRequest productRequest);
+    boolean checkIfAllProductsExist(List<Long> productsIds);
+    boolean checkIfProductExist(long productId);
+    List<Product> getMultipleProductByIds(List<Long> ids);
 }

@@ -1,5 +1,9 @@
 package com.kivanc.steamserver.core.configurations;
 
+import com.kivanc.steamserver.customer.Customer;
+import com.kivanc.steamserver.customer.CustomerDao;
+import com.kivanc.steamserver.customer.CustomerService;
+import com.kivanc.steamserver.customer.requests.CustomerRequest;
 import com.kivanc.steamserver.product.Product;
 import com.kivanc.steamserver.product.ProductDao;
 import com.kivanc.steamserver.publisher.Publisher;
@@ -19,11 +23,13 @@ public class DataLoader implements ApplicationRunner {
 
     private PublisherDao publisherDao;
     private ProductDao productDao;
+    private CustomerService customerService;
 
     @Autowired
-    public DataLoader(PublisherDao publisherDao, ProductDao productDao) {
+    public DataLoader(PublisherDao publisherDao, ProductDao productDao, CustomerService customerService) {
         this.publisherDao = publisherDao;
         this.productDao = productDao;
+        this.customerService = customerService;
     }
 
     public void run(ApplicationArguments args) {
@@ -61,5 +67,8 @@ public class DataLoader implements ApplicationRunner {
         productDao.saveAndFlush(productOfUbisoft1);
         productDao.saveAndFlush(productOfUbisoft2);
         productDao.saveAndFlush(productOfActivision1);
+
+        CustomerRequest customerRequest1 = CustomerRequest.builder().username("kivanc69").email("kivanc@gmail.com").password("wowNice123456").build();
+        customerService.addCustomer(customerRequest1);
     }
 }

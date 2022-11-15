@@ -20,13 +20,13 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable(name = "id") long id) {
         return ResponseEntity.status(HttpStatus.FOUND)
-                .body(productService.getProduct(id));
+                .body(productService.getProductById(id));
     }
 
-    @GetMapping("/username/{username}")
-    public ResponseEntity<List<ProductDTO>> getProductsByPublisherUsername(@PathVariable(name = "username") String username) {
+    @GetMapping("/publisherId/{id}")
+    public ResponseEntity<List<ProductDTO>> getProductsByPublisherId(@PathVariable(name = "id") Long id) {
         return ResponseEntity.status(HttpStatus.FOUND)
-                .body(productService.getProductsByUsername(username));
+                .body(productService.getProductsByPublisherId(id));
     }
 
     @PostMapping

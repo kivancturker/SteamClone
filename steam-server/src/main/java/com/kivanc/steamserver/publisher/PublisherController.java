@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/publishers")
 public class PublisherController {
@@ -20,8 +22,13 @@ public class PublisherController {
         this.publisherService = publisherService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<PublisherDTO>> getPublishers() {
+        List<PublisherDTO> publisherDTOS = publisherService.getPublishers();
+        return new ResponseEntity<>(publisherDTOS, HttpStatus.OK);
+    }
     @GetMapping("/{id}")
-    public ResponseEntity<PublisherDTO> getCustomer(@PathVariable(name = "id") long id) {
+    public ResponseEntity<PublisherDTO> getPublisher(@PathVariable(name = "id") long id) {
         PublisherDTO publisherDTO = publisherService.getPublisherById(id);
         return new ResponseEntity<>(publisherDTO, HttpStatus.OK);
     }

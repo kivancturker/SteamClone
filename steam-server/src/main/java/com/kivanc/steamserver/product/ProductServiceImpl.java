@@ -27,7 +27,7 @@ public class ProductServiceImpl implements ProductService{
 
 
     @Override
-    public ProductDTO getProduct(long id) {
+    public ProductDTO getProductById(long id) {
         Optional<Product> maybeProduct = productDao.findById(id);
         if (maybeProduct.isEmpty())
         {
@@ -38,11 +38,11 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<ProductDTO> getProductsByUsername(String username) {
-        Optional<List<Product>> maybeProducts = productDao.getProductsByPublisherUsername(username);
+    public List<ProductDTO> getProductsByPublisherId(Long id) {
+        Optional<List<Product>> maybeProducts = productDao.getProductsByPublisherId(id);
         if (maybeProducts.isEmpty())
         {
-            throw new RecordNotFoundException("Products Not Found With the username: " + username);
+            throw new RecordNotFoundException("Products Not Found With the Publisher Id: " + id);
         }
         List<ProductDTO> productDTOS = maybeProducts.get().stream()
                 .map(product -> mapper.map(product, ProductDTO.class))
@@ -55,5 +55,20 @@ public class ProductServiceImpl implements ProductService{
         Product product = mapper.map(productRequest, Product.class);
         log.info("Product: " + product.getName() + " added");
         productDao.save(product);
+    }
+
+    @Override
+    public boolean checkIfAllProductsExist(List<Long> productsIds) {
+        return productDao.existsProductsByIdIn(productsIds);
+    }
+
+    @Override
+    public boolean checkIfProductExist(long productId) {
+        return productDao.existsProductById(productId);
+    }
+
+    @Override
+    public List<Product> getMultipleProductByIds(List<Long> ids) {
+        return productDao.getProductsByIdIn(ids).get();
     }
 }
