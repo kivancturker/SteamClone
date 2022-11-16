@@ -1,7 +1,7 @@
 package com.kivanc.steamserver.product;
 
 import com.kivanc.steamserver.product.requests.AddProductRequest;
-import com.kivanc.steamserver.publisher.dtos.ProductDTO;
+import com.kivanc.steamserver.product.dtos.ProductDTO;
 
 import java.util.List;
 

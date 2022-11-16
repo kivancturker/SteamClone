@@ -1,4 +1,4 @@
-package com.kivanc.steamserver.publisher.dtos;
+package com.kivanc.steamserver.product.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -3,12 +3,10 @@ package com.kivanc.steamserver.product;
 import com.kivanc.steamserver.core.exceptions.RecordNotFoundException;
 import com.kivanc.steamserver.product.requests.AddProductRequest;
 import com.kivanc.steamserver.publisher.PublisherService;
-import com.kivanc.steamserver.publisher.dtos.ProductDTO;
+import com.kivanc.steamserver.product.dtos.ProductDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
