@@ -27,6 +27,12 @@ public class CartController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PutMapping("/emptyCart/{id}")
+    public ResponseEntity<HttpStatus> emptyTheCart(@PathVariable("id")  long cartId) {
+        cartService.emptyTheCart(cartId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @DeleteMapping("/removeProductFromCart")
     public ResponseEntity<ProductDTO> removeProductFromCart(@RequestParam long cartId, @RequestParam long productId) {
         ProductDTO productDTO = cartService.removeProductFromCart(cartId, productId);

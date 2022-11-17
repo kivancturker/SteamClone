@@ -37,7 +37,7 @@ public class Product {
     private List<String> mediaUrls;
     @ManyToOne
     private Publisher publisher;
-    @OneToMany(mappedBy = "product")
+    @OneToMany
     private List<Order> orders;
     @OneToMany
     private List<Cart> carts;

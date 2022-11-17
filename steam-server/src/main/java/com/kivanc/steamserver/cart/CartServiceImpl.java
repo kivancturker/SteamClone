@@ -7,6 +7,7 @@ import com.kivanc.steamserver.core.exceptions.RecordNotFoundException;
 import com.kivanc.steamserver.customer.Customer;
 import com.kivanc.steamserver.customer.CustomerService;
 import com.kivanc.steamserver.customer.dtos.CustomerDTO;
+import com.kivanc.steamserver.order.OrderService;
 import com.kivanc.steamserver.product.Product;
 import com.kivanc.steamserver.product.ProductService;
 import com.kivanc.steamserver.product.dtos.ProductDTO;
@@ -22,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-// TODO: Do purchase action at Cart Service.
-// TODO: Test all the methods later.
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -75,15 +74,27 @@ public class CartServiceImpl implements CartService {
     @Override
     public void completePurchase(long cartId) {
         // Do payment - If not enough money throw exception. (Catch it on controller)
+        // Do it later
+
         // Create order
+
         // Empty the cart
     }
 
     @Override
     public void emptyTheCart(long cartId) {
-        // Copy the data on the previous cart
-        // Delete the previous cart
-        // Create a new one with previos cart information. (e.g customerId)
+        Cart cart = getCartWithId(cartId);
+        List<Product> productsInCart = cart.getProducts();
+        if (productsInCart.isEmpty() && cart.getPrice().equals(0))
+        {
+            return;
+        }
+
+        cart.setProducts(new ArrayList<>());
+        cart.setPrice(BigDecimal.ZERO);
+        cart.setLastModified(LocalDateTime.now());
+
+        cartDao.save(cart);
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.kivanc.steamserver.order;
 
 import com.kivanc.steamserver.customer.Customer;
 import com.kivanc.steamserver.product.Product;
-import com.kivanc.steamserver.publisher.Publisher;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -26,8 +25,8 @@ public class Order {
     private long id;
     @ManyToOne
     private Customer customer;
-    @ManyToOne
-    private Product product;
-    LocalDate orderDate;
+    @OneToMany
+    private List<Product> products;
+    LocalDateTime orderDate;
     BigDecimal price;
 }
