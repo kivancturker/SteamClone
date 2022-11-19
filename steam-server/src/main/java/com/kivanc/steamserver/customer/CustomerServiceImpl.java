@@ -1,8 +1,8 @@
 package com.kivanc.steamserver.customer;
 
-import com.kivanc.steamserver.cart.Cart;
 import com.kivanc.steamserver.cart.CartService;
 import com.kivanc.steamserver.cart.requests.CartRequest;
+import com.kivanc.steamserver.ownedproduct.OwnedProduct;
 import com.kivanc.steamserver.core.exceptions.RecordNotFoundException;
 import com.kivanc.steamserver.customer.dtos.CustomerDTO;
 import com.kivanc.steamserver.customer.exceptions.CustomerAlreadyExistException;
@@ -11,18 +11,18 @@ import com.kivanc.steamserver.customer.requests.CustomerRequest;
 import com.kivanc.steamserver.customer.requests.ProductAdditionRequest;
 import com.kivanc.steamserver.product.Product;
 import com.kivanc.steamserver.product.ProductService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO: addProductToCustomer doesnt work
 @Slf4j
 @Service
 public class CustomerServiceImpl implements  CustomerService {
@@ -51,6 +51,8 @@ public class CustomerServiceImpl implements  CustomerService {
         return customerDTO;
     }
 
+    // Not Finished !!!
+    // Also not working
     @Override
     public void addProductToCustomer(ProductAdditionRequest productAdditionRequest) {
         long customerId = productAdditionRequest.getCustomerId();
@@ -59,18 +61,48 @@ public class CustomerServiceImpl implements  CustomerService {
         {
             throw new RecordNotFoundException("Product with ids does not exist: " + productIds);
         }
-        if (!customerDao.existsCustomerById(customerId))
+        Optional<Customer> maybeCustomer = customerDao.findById(customerId);
+        if (maybeCustomer.isEmpty())
         {
             throw new RecordNotFoundException("Customer not found with id of: " + customerId);
         }
-        Optional<Customer> maybeCustomer = customerDao.findById(customerId);
         Customer customer = maybeCustomer.get();
+
         List<Product> products = productService.getMultipleProductByIds(productIds);
-        List<Product> customersOverallProducts = Stream.of(products, customer.getProducts())
-                .flatMap(Collection::stream)
+
+        Customer customerAfterPurchase = giveCustomerPurchasedProducts(products, customer);
+
+        customerDao.saveAndFlush(customerAfterPurchase);
+
+        log.info("Products added to the customer with id: " + customer.getId());
+    }
+
+    private Customer giveCustomerPurchasedProducts(List<Product> products, Customer customer) {
+        Optional<Customer> maybeCustomerAfterPurchase = customerDao.findById(customer.getId());
+        Customer customerAfterPurchase = maybeCustomerAfterPurchase.get();
+        List<OwnedProduct> purchasedOwnedProducts = convertProductsToOwnedProducts(products, customer);
+        List<OwnedProduct> alreadyOwnedProducts = customer.getOwnedProducts();
+        List<OwnedProduct> newOwnedProducts = Stream.of(purchasedOwnedProducts, alreadyOwnedProducts)
+                .flatMap(ownedProducts -> ownedProducts.stream())
                 .collect(Collectors.toList());
-        customer.setProducts(customersOverallProducts);
-        customerDao.save(customer);
+        customerAfterPurchase.setOwnedProducts(newOwnedProducts);
+        return customerAfterPurchase;
+    }
+
+    private List<OwnedProduct> convertProductsToOwnedProducts(List<Product> products, Customer customer) {
+        LocalDateTime purchaseDate = LocalDateTime.now();
+        List<OwnedProduct> convertedOwnedProduct = products.stream()
+                .map((p) -> {
+                    return OwnedProduct.builder()
+                            .product(p)
+                            .customer(customer)
+                            .totalHours(BigDecimal.ZERO)
+                            .purchaseDate(purchaseDate)
+                            .paidAmount(p.getPrice())
+                            .build();
+                })
+                .collect(Collectors.toList());
+        return convertedOwnedProduct;
     }
 
     @Override

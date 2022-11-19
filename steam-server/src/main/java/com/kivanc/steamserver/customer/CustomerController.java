@@ -28,7 +28,7 @@ public class CustomerController {
     }
 
     @PutMapping("/addProducts")
-    public ResponseEntity<HttpStatus> addProductsToCustomer(ProductAdditionRequest productAdditionRequest) {
+    public ResponseEntity<HttpStatus> addProductsToCustomer(@RequestBody ProductAdditionRequest productAdditionRequest) {
         customerService.addProductToCustomer(productAdditionRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
