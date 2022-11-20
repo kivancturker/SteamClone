@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerRequest {
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 30)
     @NotNull
     private String username;
     @Email

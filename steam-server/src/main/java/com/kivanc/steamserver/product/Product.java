@@ -3,6 +3,7 @@ package com.kivanc.steamserver.product;
 import com.kivanc.steamserver.cart.Cart;
 import com.kivanc.steamserver.ownedproduct.OwnedProduct;
 import com.kivanc.steamserver.order.Order;
+import com.kivanc.steamserver.productincart.ProductInCart;
 import com.kivanc.steamserver.publisher.Publisher;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,8 +38,8 @@ public class Product {
     private Publisher publisher;
     @OneToMany
     private List<Order> orders;
-    @OneToMany
-    private List<Cart> carts;
+    @OneToMany(mappedBy = "product")
+    private List<ProductInCart> productInCarts;
     @OneToMany(mappedBy = "product")
     private List<OwnedProduct> ownedProducts;
 }

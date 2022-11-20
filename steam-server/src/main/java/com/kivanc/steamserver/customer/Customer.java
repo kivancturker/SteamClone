@@ -22,13 +22,13 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "id")
 public class Customer extends User {
     private LocalDateTime birthDate;
-    private LocalDateTime createDate;
+    private LocalDateTime joinDate;
     private LocalDateTime lastLogin;
     @OneToMany(mappedBy = "customer")
     private List<Order> orders;
     @OneToMany(mappedBy = "customer")
     private List<OwnedProduct> ownedProducts;
-    @OneToOne
-    @JoinColumn(name="cart_id", referencedColumnName="id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="cart_id")
     private Cart cart;
 }

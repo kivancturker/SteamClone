@@ -17,7 +17,7 @@ import java.util.List;
 public class CartDTO {
     private long id;
     private long customerId;
-    private List<Long> productIds;
+    private List<Long> productInCartIds;
     private LocalDateTime lastModified;
     private BigDecimal price;
 }

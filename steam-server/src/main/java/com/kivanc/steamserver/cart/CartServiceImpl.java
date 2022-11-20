@@ -11,6 +11,10 @@ import com.kivanc.steamserver.order.OrderService;
 import com.kivanc.steamserver.product.Product;
 import com.kivanc.steamserver.product.ProductService;
 import com.kivanc.steamserver.product.dtos.ProductDTO;
+import com.kivanc.steamserver.productincart.ProductInCart;
+import com.kivanc.steamserver.productincart.ProductInCartService;
+import com.kivanc.steamserver.productincart.dtos.ProductInCartDTO;
+import com.kivanc.steamserver.productincart.requests.AddProductInCartRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -29,17 +33,17 @@ public class CartServiceImpl implements CartService {
 
     private final ModelMapper modelMapper;
     private final CartDao cartDao;
-    private CustomerService customerService;
+    private ProductInCartService productInCartService;
     private ProductService productService;
 
     @Autowired
     public CartServiceImpl(ModelMapper modelMapper,
                            CartDao cartDao,
-                           @Lazy CustomerService customerService,
+                           ProductInCartService productInCartService,
                            ProductService productService) {
         this.modelMapper = modelMapper;
         this.cartDao = cartDao;
-        this.customerService = customerService;
+        this.productInCartService = productInCartService;
         this.productService = productService;
     }
 
@@ -51,20 +55,19 @@ public class CartServiceImpl implements CartService {
             throw new RecordNotFoundException("Cart with id: " + id + " Not Found");
         }
         CartDTO cartDTO = modelMapper.map(maybeCart.get(), CartDTO.class);
-        List<Long> productIds = maybeCart.get().getProducts().stream()
-                .map(product -> product.getId())
+        List<Long> productInCartIds = maybeCart.get().getProductInCarts().stream()
+                .map(productInCart -> productInCart.getId())
                 .collect(Collectors.toList());
-        cartDTO.setProductIds(productIds);
+        cartDTO.setProductInCartIds(productInCartIds);
         return cartDTO;
     }
 
     @Override
     public void addCart(CartRequest cartRequest) {
-        CustomerDTO customerDTO = customerService.getCustomerById(cartRequest.getCustomerId());
-        Customer customer = modelMapper.map(customerDTO, Customer.class);
+        Customer customer = Customer.builder().id(cartRequest.getCustomerId()).build();
         Cart cart = Cart.builder()
                 .customer(customer)
-                .products(new ArrayList<>())
+                .productInCarts(new ArrayList<>())
                 .lastModified(LocalDateTime.now())
                 .price(BigDecimal.ZERO)
                 .build();
@@ -72,95 +75,44 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void completePurchase(long cartId) {
-        // Do payment - If not enough money throw exception. (Catch it on controller)
-        // Do it later
-
-        // Create order
-
-        // Empty the cart
-    }
-
-    @Override
     public void emptyTheCart(long cartId) {
-        Cart cart = getCartWithId(cartId);
-        List<Product> productsInCart = cart.getProducts();
-        if (productsInCart.isEmpty() && cart.getPrice().equals(0))
-        {
-            return;
-        }
 
-        cart.setProducts(new ArrayList<>());
-        cart.setPrice(BigDecimal.ZERO);
-        cart.setLastModified(LocalDateTime.now());
-
-        cartDao.save(cart);
     }
 
     @Override
     public void addProductToCart(long cartId, long productId) {
-        throwExceptionIfProductExist(productId);
-        Cart cart = getCartWithId(cartId);
-
+        Optional<Cart> maybeCart = cartDao.findById(cartId);
+        if (maybeCart.isEmpty())
+        {
+            throw new RecordNotFoundException("Cart with id: " + cartId + " not found");
+        }
+        AddProductInCartRequest request = AddProductInCartRequest.builder()
+                .cartId(cartId)
+                .productId(productId)
+                .build();
+        productInCartService.addProductInCart(request);
         ProductDTO productDTO = productService.getProductById(productId);
         Product product = modelMapper.map(productDTO, Product.class);
-        List<Product> productsInCart = cart.getProducts();
-        boolean isCartContainsProduct = productsInCart.stream()
-                .anyMatch(p -> p.getId() == product.getId());
-        if (isCartContainsProduct) {
-            throw new RecordAlreadyExistException("Product with id: " +
-                    productId + " is in the Cart with id: " + cartId);
-        }
-        updateCartAfterProductAdded(cart, product);
-
-        cartDao.save(cart);
-    }
-
-    private void throwExceptionIfProductExist(long productId) {
-        if (!productService.checkIfProductExist(productId)) {
-            throw new RecordNotFoundException("Product with id: " + productId + " Not Found");
-        }
-    }
-    private Cart getCartWithId(long cartId) {
-        Optional<Cart> maybeCart = cartDao.findById(cartId);
-        if (maybeCart.isEmpty()) {
-            throw new RecordNotFoundException("Cart with id: " + cartId + " Not Found");
-        }
-        return maybeCart.get();
-    }
-
-    private void updateCartAfterProductAdded(Cart cart, Product product) {
-        List<Product> productsInCart = cart.getProducts();
-        productsInCart.add(product);
-        cart.setProducts(productsInCart);
-
+        Cart cart = maybeCart.get();
         BigDecimal prevPrice = cart.getPrice();
         cart.setPrice(prevPrice.add(product.getPrice()));
-
-        cart.setLastModified(LocalDateTime.now());
+        cartDao.save(cart);
     }
+
 
     @Override
-    public ProductDTO removeProductFromCart(long cartId, long productId) {
-        // Check if product is on the cart
-        throwExceptionIfProductExist(productId);
-        // Get Cart
-        Cart cart = getCartWithId(cartId);
-        // Remove product from the cart
-        List<Product> productsInCart = cart.getProducts();
-        List<Product> productsAfterRemoval = productsInCart.stream()
-                .filter(product -> product.getId() != productId)
-                .collect(Collectors.toList());
-        cart.setProducts(productsAfterRemoval);
-        // Decrease the cart price
-        Optional<Product> maybeProduct = productsInCart.stream().findAny();
-        Product product = maybeProduct.get();
-        cart.setPrice(cart.getPrice().subtract(product.getPrice()));
-        // Change lastModified
-        cart.setLastModified(LocalDateTime.now());
-        // Save the database
+    public ProductInCartDTO removeProductFromCart(long productInCart) {
+        ProductInCartDTO deletedDTO = productInCartService.deleteProductInCart(productInCart);
+        long cartId = deletedDTO.getCartId();
+        long productId = deletedDTO.getProductId();
+        Optional<Cart> maybeCart = cartDao.findById(cartId);
+        Cart cart = maybeCart.get();
+        ProductDTO productDTO = productService.getProductById(productId);
+        Product product = modelMapper.map(productDTO, Product.class);
+        BigDecimal prevPrice = cart.getPrice();
+        cart.setPrice(prevPrice.subtract(product.getPrice()));
         cartDao.save(cart);
-        ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
-        return productDTO;
+        return deletedDTO;
     }
+
 }

@@ -28,7 +28,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO placeOrder(long customerId) {
-        CustomerDTO customerDTO = customerService.getCustomerById(customerId);
+        /*CustomerDTO customerDTO = customerService.getCustomerById(customerId);
         Customer customer = modelMapper.map(customerDTO, Customer.class);
         long cartId = customerDTO.getCartId();
         CartDTO cartDTO = cartService.getCardById(cartId);
@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         cartService.emptyTheCart(cartId);
-
+        */
 
         return null;
     }

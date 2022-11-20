@@ -7,4 +7,5 @@ import com.kivanc.steamserver.ownedproduct.requests.OwnedProductRequest;
 public interface OwnedProductService {
     public OwnedProductDTO addOwnedProduct(OwnedProductRequest ownedProductRequest);
     public void addManyOwnedProducts(ManyOwnedProductRequest manyOwnedProductRequest);
+
 }

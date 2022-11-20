@@ -2,6 +2,7 @@ package com.kivanc.steamserver.cart;
 
 import com.kivanc.steamserver.customer.Customer;
 import com.kivanc.steamserver.product.Product;
+import com.kivanc.steamserver.productincart.ProductInCart;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,8 +25,8 @@ public class Cart {
     private long id;
     @OneToOne(mappedBy = "cart")
     private Customer customer;
-    @OneToMany
-    private List<Product> products;
+    @OneToMany(mappedBy = "cart")
+    private List<ProductInCart> productInCarts;
     private LocalDateTime lastModified;
     private BigDecimal price;
 }

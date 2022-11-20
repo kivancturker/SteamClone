@@ -1,6 +1,8 @@
 package com.kivanc.steamserver.customer;
 
+import com.kivanc.steamserver.cart.Cart;
 import com.kivanc.steamserver.cart.CartService;
+import com.kivanc.steamserver.cart.dtos.CartDTO;
 import com.kivanc.steamserver.cart.requests.CartRequest;
 import com.kivanc.steamserver.ownedproduct.OwnedProduct;
 import com.kivanc.steamserver.core.exceptions.RecordNotFoundException;
@@ -112,11 +114,16 @@ public class CustomerServiceImpl implements  CustomerService {
         isEmailExist(customer.getEmail());
         // username must be unique
         isUsernameExist(customer.getUsername());
-        customerDao.saveAndFlush(customer);
+        customer.setJoinDate(LocalDateTime.now());
+        Cart cart = Cart.builder()
+                .productInCarts(new ArrayList<>())
+                .lastModified(LocalDateTime.now())
+                .price(BigDecimal.ZERO)
+                .build();
+        customer.setCart(cart);
+        customerDao.save(customer);
         log.info("Customer with " + customer.getUsername() + " username added");
-        // Every customer has a cart
-        CartRequest cartRequest = new CartRequest(customer.getId());
-        cartService.addCart(cartRequest);
+
     }
 
     private void isEmailExist(String email) {

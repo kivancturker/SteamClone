@@ -2,6 +2,7 @@ package com.kivanc.steamserver.cart;
 
 import com.kivanc.steamserver.cart.dtos.CartDTO;
 import com.kivanc.steamserver.product.dtos.ProductDTO;
+import com.kivanc.steamserver.productincart.dtos.ProductInCartDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +34,10 @@ public class CartController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/removeProductFromCart")
-    public ResponseEntity<ProductDTO> removeProductFromCart(@RequestParam long cartId, @RequestParam long productId) {
-        ProductDTO productDTO = cartService.removeProductFromCart(cartId, productId);
-        return ResponseEntity.ok(productDTO);
+    @DeleteMapping("/removeProductFromCart/{id}")
+    public ResponseEntity<ProductInCartDTO> removeProductFromCart(@PathVariable("id") long productInCartId) {
+        ProductInCartDTO productInCartDTO = cartService.removeProductFromCart(productInCartId);
+        return ResponseEntity.ok(productInCartDTO);
     }
 
 }
